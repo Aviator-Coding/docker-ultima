@@ -2,12 +2,12 @@ ARG BDB_VERSION="4.8.30.NC"
 
 FROM lepetitbloc/bdb:$BDB_VERSION
 
-ARG USE_UPNP=1
-ENV USE_UPNP=$USE_UPNP
 
-EXPOSE 21521 21520
 
-RUN apt-get update -y && apt-get install -y  \
+## Wallet Ports ###
+EXPOSE 21520 21521
+
+RUN apt-get update -y && apt-get  --no-install-recommends install -y  \
     libssl-dev \
     libboost-system-dev \
     libboost-filesystem-dev \
@@ -24,11 +24,12 @@ RUN apt-get update -y && apt-get install -y  \
     pkg-config \
     git \
     bsdmainutils \
+	ca-certificates\
 && rm -rf /var/lib/apt/lists/* \
 && useradd -lrUm ultima \
-&& git clone https://github.com/ultimammp/ultima.git /tmp/ultima
-WORKDIR /tmp/ultima
+&& git clone https://github.com/ultimammp/ultima.git /tmp/ultima 
 
+WORKDIR /tmp/ultima
 # build
 RUN chmod +x autogen.sh share/genbuild.sh src/leveldb/build_detect_platform \
 && ./autogen.sh \
@@ -45,9 +46,9 @@ USER ultima
 
 WORKDIR /home/ultima
 
-RUN mkdir -p .ultima data
+RUN mkdir -p .ultimacore data
 
-COPY wallet/.ultima/ .ultima/
+COPY wallet/.ultimacore/ .ultimacore/
 
-ENTRYPOINT ["/usr/local/bin/ultimad", "-reindex", "-printtoconsole", "-logtimestamps=1", "-datadir=data", "-conf=../.ultima/ultima.conf", "-mnconf=../.ultima/masternode.conf", "-port=9918", "-rpcport=9919"]
+ENTRYPOINT ["/usr/local/bin/ultimad", "-reindex", "-printtoconsole", "-logtimestamps=1", "-datadir=data", "-conf=../.ultimacore/ultima.conf", "-mnconf=../.ultimacore/masternode.conf", "-port=21520", "-rpcport=21521"]
 CMD ["-rpcallowip=127.0.0.1", "-server=1", "-masternode=0"]
