@@ -26,14 +26,14 @@ RUN apt-get update -y && apt-get  --no-install-recommends install -y  \
     bsdmainutils \
 	ca-certificates\
 && rm -rf /var/lib/apt/lists/* \
-&& useradd -lrUm ultima \
-&& git clone https://github.com/ultimammp/ultima.git /tmp/ultima 
+&& useradd -lrUm ultima
 
 WORKDIR /tmp/ultima
 # build
-RUN chmod +x autogen.sh share/genbuild.sh src/leveldb/build_detect_platform \
+RUN git clone https://github.com/ultimammp/ultima.git /tmp/ultima 
+    #chmod +x autogen.sh share/genbuild.sh src/leveldb/build_detect_platform \
 && ./autogen.sh \
-&& ./configure CPPFLAGS="-I/usr/local/db4/include -O2" LDFLAGS="-L/usr/local/db4/lib" \
+&& ./configure \
 && make \
 && strip src/ultimad src/ultima-cli src/ultima-tx \
 && mv src/ultimad /usr/local/bin/ \
